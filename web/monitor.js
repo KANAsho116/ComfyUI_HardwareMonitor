@@ -191,12 +191,14 @@ class HardwareMonitor {
             writable: true,
             value: async (gpuCount) => {
                 try {
+                    console.log('[HardwareMonitor] Initializing charts with GPU count:', gpuCount);
                     await this.hardwareChartsUI.initializeCharts(gpuCount);
                     const chartsEnabled = app.extensionManager.setting.get(this.settingsHardwareCharts.id);
-                    this.hardwareChartsUI.setEnabled(chartsEnabled);
+                    console.log('[HardwareMonitor] Charts enabled setting:', chartsEnabled, 'ID:', this.settingsHardwareCharts.id);
+                    this.hardwareChartsUI.setEnabled(chartsEnabled === true || chartsEnabled === undefined);
                 }
                 catch (error) {
-                    console.error('Failed to initialize hardware charts:', error);
+                    console.error('[HardwareMonitor] Failed to initialize hardware charts:', error);
                 }
             }
         });
@@ -263,14 +265,19 @@ class HardwareMonitor {
             configurable: true,
             writable: true,
             value: () => {
+                console.log('[HardwareMonitor] Setup called');
                 if (this.monitorUI) {
+                    console.log('[HardwareMonitor] Already initialized, skipping');
                     return;
                 }
+                this.hardwareChartsUI = new HardwareChartsUI();
+                this.hardwareChartsUI.createDOM();
                 this.createSettingsRate();
                 this.createSettingsHardwareCharts();
                 this.createSettingsTransferSpeed();
                 this.createSettingsSharedGPUMemory();
                 this.createSettings();
+                console.log('[HardwareMonitor] Settings created');
                 const currentRate = parseFloat(app.extensionManager.setting.get(this.settingsRate.id));
                 this.menuDisplayOption = app.extensionManager.setting.get(ComfyKeyMenuDisplayOption);
                 this.crystoolsButtonGroup = new ComfyButtonGroup();
@@ -291,8 +298,6 @@ class HardwareMonitor {
                 };
                 this.monitorUI = new MonitorUI(this.crystoolsButtonGroup.element, emptySettings, emptySettings, emptySettings, [], [], [], currentRate);
                 this.monitorUI.hideAllMonitors();
-                this.hardwareChartsUI = new HardwareChartsUI();
-                this.hardwareChartsUI.createDOM();
                 this.moveMonitor(this.menuDisplayOption);
                 this.registerListeners();
             }
@@ -302,6 +307,7 @@ class HardwareMonitor {
             configurable: true,
             writable: true,
             value: () => {
+                console.log('[HardwareMonitor] Registering event listeners');
                 api.addEventListener('crystools.monitor', (event) => {
                     if (event?.detail === undefined) {
                         return;

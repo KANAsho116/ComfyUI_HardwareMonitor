@@ -127,11 +127,13 @@ class HardwareMonitor {
 
   initializeHardwareCharts = async(gpuCount: number): Promise<void> => {
     try {
+      console.log('[HardwareMonitor] Initializing charts with GPU count:', gpuCount);
       await this.hardwareChartsUI.initializeCharts(gpuCount);
       const chartsEnabled = app.extensionManager.setting.get(this.settingsHardwareCharts.id);
-      this.hardwareChartsUI.setEnabled(chartsEnabled);
+      console.log('[HardwareMonitor] Charts enabled setting:', chartsEnabled, 'ID:', this.settingsHardwareCharts.id);
+      this.hardwareChartsUI.setEnabled(chartsEnabled === true || chartsEnabled === undefined);
     } catch (error) {
-      console.error('Failed to initialize hardware charts:', error);
+      console.error('[HardwareMonitor] Failed to initialize hardware charts:', error);
     }
   };
 
@@ -180,15 +182,23 @@ class HardwareMonitor {
   };
 
   setup = (): void => {
+    console.log('[HardwareMonitor] Setup called');
     if (this.monitorUI) {
+      console.log('[HardwareMonitor] Already initialized, skipping');
       return;
     }
+
+    // Initialize HardwareChartsUI FIRST before createSettings
+    // because createSettings triggers async GPU fetch that calls initializeHardwareCharts
+    this.hardwareChartsUI = new HardwareChartsUI();
+    this.hardwareChartsUI.createDOM();
 
     this.createSettingsRate();
     this.createSettingsHardwareCharts();
     this.createSettingsTransferSpeed();
     this.createSettingsSharedGPUMemory();
     this.createSettings();
+    console.log('[HardwareMonitor] Settings created');
 
     const currentRate = parseFloat(app.extensionManager.setting.get(this.settingsRate.id));
 
@@ -226,14 +236,12 @@ class HardwareMonitor {
 
     this.monitorUI.hideAllMonitors();
 
-    this.hardwareChartsUI = new HardwareChartsUI();
-    this.hardwareChartsUI.createDOM();
-
     this.moveMonitor(this.menuDisplayOption);
     this.registerListeners();
   };
 
   registerListeners = (): void => {
+    console.log('[HardwareMonitor] Registering event listeners');
     api.addEventListener('crystools.monitor', (event: CustomEvent) => {
       if (event?.detail === undefined) {
         return;

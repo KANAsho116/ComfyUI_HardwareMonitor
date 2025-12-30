@@ -28,26 +28,12 @@ async def newSettings(request):
 
             cmonitor.hardwareInfo.switchCPU = switchCPU
 
-        if 'switchHDD' in settings is not None:
-            switchHDD = settings['switchHDD']
-            if type(switchHDD) is not bool:
-                raise Exception('switchHDD must be an boolean.')
-
-            cmonitor.hardwareInfo.switchHDD = switchHDD
-
         if 'switchRAM' in settings is not None:
             switchRAM = settings['switchRAM']
             if type(switchRAM) is not bool:
                 raise Exception('switchRAM must be an boolean.')
 
             cmonitor.hardwareInfo.switchRAM = switchRAM
-
-        if 'whichHDD' in settings is not None:
-            whichHDD = settings['whichHDD']
-            if type(whichHDD) is not str:
-                raise Exception('whichHDD must be an string.')
-
-            cmonitor.hardwareInfo.whichHDD = whichHDD
 
         if 'switchTransferSpeed' in settings is not None:
             switchTransferSpeed = settings['switchTransferSpeed']
@@ -85,15 +71,6 @@ async def monitorSwitch(request):
                 cmonitor.stopMonitor()
 
         return web.Response(status=200)
-    except Exception as e:
-        logger.error(e)
-        return web.Response(status=400, text=str(e))
-
-
-@PromptServer.instance.routes.get("/crystools/monitor/HDD")
-def getHDDs(request):
-    try:
-        return web.json_response(cmonitor.hardwareInfo.getHDDsInfo())
     except Exception as e:
         logger.error(e)
         return web.Response(status=400, text=str(e))

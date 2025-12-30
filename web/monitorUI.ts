@@ -196,7 +196,9 @@ export class MonitorUI extends ProgressBarUIBase {
     }
 
     const htmlMain = document.createElement('div');
-    htmlMain.classList.add(monitorSettings.id);
+    if (monitorSettings.id) {
+      htmlMain.classList.add(monitorSettings.id);
+    }
     htmlMain.classList.add('crystools-monitor');
 
     monitorSettings.htmlMonitorRef = htmlMain;
