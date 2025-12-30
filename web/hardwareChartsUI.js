@@ -32,6 +32,24 @@ export class HardwareChartsUI {
             writable: true,
             value: []
         });
+        Object.defineProperty(this, "capacitiesInitialized", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: false
+        });
+        Object.defineProperty(this, "capacities", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: {
+                ramTotal: 0,
+                vramTotal: [],
+                sharedGpuMemoryTotal: 0,
+                vramSpeedMax: 0,
+                sharedSpeedMax: 0,
+            }
+        });
         this.chartManager = new ChartManager();
     }
     createDOM() {
@@ -299,12 +317,68 @@ export class HardwareChartsUI {
     updateAllCharts(data) {
         if (!this.enabled || !this.initialized)
             return;
+        if (!this.capacitiesInitialized) {
+            this.initializeCapacities(data);
+        }
         for (const def of this.chartDefs) {
             const value = def.getValue(data);
             this.chartManager.updateData(def.id, value);
             const valueEl = document.getElementById(`crystools-val-${def.id}`);
             if (valueEl && value >= 0) {
                 valueEl.textContent = def.formatValue(value);
+            }
+        }
+        this.updateSpeedScales(data);
+    }
+    initializeCapacities(data) {
+        if (data.ram_total && data.ram_total > 0) {
+            this.capacities.ramTotal = data.ram_total;
+            const ramGB = data.ram_total / (1024 * 1024 * 1024);
+            this.chartManager.updateChartYMax('ram', ramGB);
+            this.updateChartTitle('ram', `RAM (${ramGB.toFixed(0)} GB)`);
+        }
+        if (data.gpus && Array.isArray(data.gpus)) {
+            for (let i = 0; i < data.gpus.length; i++) {
+                const gpu = data.gpus[i];
+                if (gpu?.vram_total && gpu.vram_total > 0) {
+                    this.capacities.vramTotal[i] = gpu.vram_total;
+                    const vramGB = gpu.vram_total / (1024 * 1024 * 1024);
+                    this.chartManager.updateChartYMax(`vram_gb_${i}`, vramGB);
+                    const suffix = data.gpus.length > 1 ? ` ${i}` : '';
+                    this.updateChartTitle(`vram_gb_${i}`, `VRAM${suffix} (${vramGB.toFixed(0)} GB)`);
+                }
+            }
+        }
+        if (data.shared_gpu_memory_total && data.shared_gpu_memory_total > 0) {
+            this.capacities.sharedGpuMemoryTotal = data.shared_gpu_memory_total;
+            const sharedGB = data.shared_gpu_memory_total / (1024 * 1024 * 1024);
+            this.chartManager.updateChartYMax('shared_mem_gb', sharedGB);
+            this.updateChartTitle('shared_mem_gb', `Shared GPU (${sharedGB.toFixed(0)} GB)`);
+        }
+        this.capacitiesInitialized = true;
+    }
+    updateSpeedScales(data) {
+        if (data.vram_transfer_speed && data.vram_transfer_speed > 0) {
+            const speedGBs = data.vram_transfer_speed / 1024;
+            if (speedGBs > this.capacities.vramSpeedMax) {
+                this.capacities.vramSpeedMax = speedGBs * 1.2;
+                this.chartManager.updateChartYMax('vram_speed', this.capacities.vramSpeedMax);
+            }
+        }
+        if (data.shared_gpu_transfer_speed && data.shared_gpu_transfer_speed > 0) {
+            const speedGBs = data.shared_gpu_transfer_speed / 1024;
+            if (speedGBs > this.capacities.sharedSpeedMax) {
+                this.capacities.sharedSpeedMax = speedGBs * 1.2;
+                this.chartManager.updateChartYMax('shared_speed', this.capacities.sharedSpeedMax);
+            }
+        }
+    }
+    updateChartTitle(chartId, newTitle) {
+        const chartItem = document.getElementById(`crystools-chart-${chartId}`)?.parentElement;
+        if (chartItem) {
+            const titleEl = chartItem.querySelector('span');
+            if (titleEl) {
+                titleEl.textContent = newTitle;
             }
         }
     }

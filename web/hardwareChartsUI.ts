@@ -14,6 +14,15 @@ interface ChartDefinition extends ChartConfig {
   formatValue: (value: number) => string;
 }
 
+/** Hardware capacity information */
+interface HardwareCapacities {
+  ramTotal: number;  // bytes
+  vramTotal: number[];  // bytes per GPU
+  sharedGpuMemoryTotal: number;  // bytes
+  vramSpeedMax: number;  // MB/s
+  sharedSpeedMax: number;  // MB/s
+}
+
 /**
  * Hardware Charts UI - Floating Panel
  */
@@ -23,6 +32,14 @@ export class HardwareChartsUI {
   private enabled: boolean = false;
   private initialized: boolean = false;
   private chartDefs: ChartDefinition[] = [];
+  private capacitiesInitialized: boolean = false;
+  private capacities: HardwareCapacities = {
+    ramTotal: 0,
+    vramTotal: [],
+    sharedGpuMemoryTotal: 0,
+    vramSpeedMax: 0,
+    sharedSpeedMax: 0,
+  };
 
   constructor() {
     this.chartManager = new ChartManager();
@@ -366,6 +383,11 @@ export class HardwareChartsUI {
   updateAllCharts(data: TStatsData): void {
     if (!this.enabled || !this.initialized) return;
 
+    // Initialize capacities on first data received
+    if (!this.capacitiesInitialized) {
+      this.initializeCapacities(data);
+    }
+
     for (const def of this.chartDefs) {
       const value = def.getValue(data);
 
@@ -376,6 +398,82 @@ export class HardwareChartsUI {
       const valueEl = document.getElementById(`crystools-val-${def.id}`);
       if (valueEl && value >= 0) {
         valueEl.textContent = def.formatValue(value);
+      }
+    }
+
+    // Update dynamic speed scales
+    this.updateSpeedScales(data);
+  }
+
+  /**
+   * Initialize hardware capacities from first data
+   */
+  private initializeCapacities(data: TStatsData): void {
+    // RAM total
+    if (data.ram_total && data.ram_total > 0) {
+      this.capacities.ramTotal = data.ram_total;
+      const ramGB = data.ram_total / (1024 * 1024 * 1024);
+      this.chartManager.updateChartYMax('ram', ramGB);
+      this.updateChartTitle('ram', `RAM (${ramGB.toFixed(0)} GB)`);
+    }
+
+    // VRAM total per GPU
+    if (data.gpus && Array.isArray(data.gpus)) {
+      for (let i = 0; i < data.gpus.length; i++) {
+        const gpu = data.gpus[i];
+        if (gpu?.vram_total && gpu.vram_total > 0) {
+          this.capacities.vramTotal[i] = gpu.vram_total;
+          const vramGB = gpu.vram_total / (1024 * 1024 * 1024);
+          this.chartManager.updateChartYMax(`vram_gb_${i}`, vramGB);
+          const suffix = data.gpus.length > 1 ? ` ${i}` : '';
+          this.updateChartTitle(`vram_gb_${i}`, `VRAM${suffix} (${vramGB.toFixed(0)} GB)`);
+        }
+      }
+    }
+
+    // Shared GPU Memory total
+    if (data.shared_gpu_memory_total && data.shared_gpu_memory_total > 0) {
+      this.capacities.sharedGpuMemoryTotal = data.shared_gpu_memory_total;
+      const sharedGB = data.shared_gpu_memory_total / (1024 * 1024 * 1024);
+      this.chartManager.updateChartYMax('shared_mem_gb', sharedGB);
+      this.updateChartTitle('shared_mem_gb', `Shared GPU (${sharedGB.toFixed(0)} GB)`);
+    }
+
+    this.capacitiesInitialized = true;
+  }
+
+  /**
+   * Update speed chart scales dynamically based on measured speeds
+   */
+  private updateSpeedScales(data: TStatsData): void {
+    // VRAM speed - update max if current exceeds
+    if (data.vram_transfer_speed && data.vram_transfer_speed > 0) {
+      const speedGBs = data.vram_transfer_speed / 1024;
+      if (speedGBs > this.capacities.vramSpeedMax) {
+        this.capacities.vramSpeedMax = speedGBs * 1.2; // 20% headroom
+        this.chartManager.updateChartYMax('vram_speed', this.capacities.vramSpeedMax);
+      }
+    }
+
+    // Shared GPU speed - update max if current exceeds
+    if (data.shared_gpu_transfer_speed && data.shared_gpu_transfer_speed > 0) {
+      const speedGBs = data.shared_gpu_transfer_speed / 1024;
+      if (speedGBs > this.capacities.sharedSpeedMax) {
+        this.capacities.sharedSpeedMax = speedGBs * 1.2; // 20% headroom
+        this.chartManager.updateChartYMax('shared_speed', this.capacities.sharedSpeedMax);
+      }
+    }
+  }
+
+  /**
+   * Update chart title element
+   */
+  private updateChartTitle(chartId: string, newTitle: string): void {
+    const chartItem = document.getElementById(`crystools-chart-${chartId}`)?.parentElement;
+    if (chartItem) {
+      const titleEl = chartItem.querySelector('span');
+      if (titleEl) {
+        titleEl.textContent = newTitle;
       }
     }
   }

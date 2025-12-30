@@ -15,4 +15,6 @@ export declare class ChartManager {
     clearAllBuffers(): void;
     destroyChart(id: string): void;
     destroyAll(): void;
+    updateChartYMax(id: string, yMax: number): void;
+    getChartYMax(id: string): number | undefined;
 }

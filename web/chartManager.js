@@ -71,7 +71,7 @@ class LineChart {
             writable: true,
             value: 0
         });
-        this.config = config;
+        this.config = { ...config };
         this.buffer = new DataBuffer();
         this.canvas = document.createElement('canvas');
         this.canvas.style.display = 'block';
@@ -192,6 +192,13 @@ class LineChart {
     getBuffer() {
         return this.buffer;
     }
+    updateYMax(yMax) {
+        this.config.yMax = yMax;
+        this.render();
+    }
+    getYMax() {
+        return this.config.yMax;
+    }
     destroy() {
         this.canvas.remove();
     }
@@ -245,5 +252,15 @@ export class ChartManager {
             chart.destroy();
         }
         this.charts.clear();
+    }
+    updateChartYMax(id, yMax) {
+        const chart = this.charts.get(id);
+        if (chart) {
+            chart.updateYMax(yMax);
+        }
+    }
+    getChartYMax(id) {
+        const chart = this.charts.get(id);
+        return chart?.getYMax();
     }
 }

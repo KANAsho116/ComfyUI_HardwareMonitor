@@ -65,7 +65,7 @@ class LineChart {
   private height: number = 0;
 
   constructor(container: HTMLElement, config: ChartConfig) {
-    this.config = config;
+    this.config = { ...config };
     this.buffer = new DataBuffer();
 
     // Create canvas element
@@ -222,6 +222,15 @@ class LineChart {
     return this.buffer;
   }
 
+  updateYMax(yMax: number): void {
+    this.config.yMax = yMax;
+    this.render();
+  }
+
+  getYMax(): number | undefined {
+    return this.config.yMax;
+  }
+
   destroy(): void {
     this.canvas.remove();
   }
@@ -281,5 +290,17 @@ export class ChartManager {
       chart.destroy();
     }
     this.charts.clear();
+  }
+
+  updateChartYMax(id: string, yMax: number): void {
+    const chart = this.charts.get(id);
+    if (chart) {
+      chart.updateYMax(yMax);
+    }
+  }
+
+  getChartYMax(id: string): number | undefined {
+    const chart = this.charts.get(id);
+    return chart?.getYMax();
   }
 }
