@@ -1,9 +1,9 @@
 [project]
-name = "ComfyUI-Crystools"
-description = "With this suit, you can see the resources monitor, progress bar & time elapsed, metadata and compare between two images, compare between two JSONs, show any value to console/display, pipes, and more!\nThis provides better nodes to load/save images, previews, etc, and see \"hidden\" data without loading a new workflow."
-version = "1.27.4"
+name = "ComfyUI-HardwareMonitor"
+description = "Real-time hardware monitoring panel for ComfyUI with CPU, RAM, GPU, VRAM usage charts and transfer speed monitoring."
+version = "1.0.0"
 license = { file = "LICENSE" }
-dependencies = ["deepdiff", "torch", "numpy", "Pillow", "pynvml", "py-cpuinfo"]
+dependencies = ["torch", "numpy", "pynvml", "py-cpuinfo"]
 
 classifiers = [
   "Operating System :: OS Independent",
@@ -11,11 +11,8 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/crystian/ComfyUI-Crystools"
-Documentation = "https://github.com/crystian/ComfyUI-Crystools/blob/main/README.md"
-"Bug Tracker" = "https://github.com/crystian/ComfyUI-Crystools/issues"
+Repository = "https://github.com/KANAsho116/ComfyUI_HardwareMonitor"
 
 [tool.comfy]
-PublisherId = "crystian"
-DisplayName = "ComfyUI-Crystools"
-Icon = "https://raw.githubusercontent.com/crystian/ComfyUI-Crystools/main/docs/screwdriver.png"
+PublisherId = "KANAsho116"
+DisplayName = "Hardware Monitor"

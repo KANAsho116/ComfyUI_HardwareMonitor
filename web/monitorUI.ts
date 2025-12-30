@@ -247,4 +247,17 @@ export class MonitorUI extends ProgressBarUIBase {
   resetMaxVRAM = (): void => {
     this.maxVRAMUsed = {};
   };
+
+  hideAllMonitors = (): void => {
+    // Hide the entire monitors container
+    if (this.rootElement) {
+      this.rootElement.style.display = 'none';
+    }
+  };
+
+  showAllMonitors = (): void => {
+    if (this.rootElement) {
+      this.rootElement.style.display = '';
+    }
+  };
 }

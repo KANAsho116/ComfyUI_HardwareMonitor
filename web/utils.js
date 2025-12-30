@@ -46,16 +46,6 @@ export function formatBytes(bytes) {
     const formattedSize = (bytes / Math.pow(1024, i)).toFixed(2);
     return `${formattedSize} ${sizes[i]}`;
 }
-export function formatSpeed(mbps) {
-    if (mbps < 0)
-        return 'N/A';
-    if (mbps === 0)
-        return '0 MB/s';
-    if (mbps >= 1000) {
-        return `${(mbps / 1000).toFixed(1)} GB/s`;
-    }
-    return `${Math.round(mbps)} MB/s`;
-}
 export function createStyleSheet(id) {
     const style = document.createElement('style');
     style.setAttribute('id', id);

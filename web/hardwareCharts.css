@@ -1,0 +1,30 @@
+/**
+ * Hardware Charts CSS
+ *
+ * Minimal styles for the floating hardware charts panel.
+ * Most styles are defined inline in hardwareChartsUI.ts for simplicity.
+ */
+
+/* Scrollbar styling for the charts list */
+#crystools-charts-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#crystools-charts-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+#crystools-charts-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+#crystools-charts-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure canvas elements fill their containers */
+#crystools-charts-panel canvas {
+  display: block;
+}

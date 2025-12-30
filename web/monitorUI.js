@@ -1,7 +1,7 @@
 import { ProgressBarUIBase } from './progressBarUIBase.js';
-import { createStyleSheet, formatBytes, formatSpeed } from './utils.js';
+import { createStyleSheet, formatBytes } from './utils.js';
 export class MonitorUI extends ProgressBarUIBase {
-    constructor(rootElement, monitorCPUElement, monitorRAMElement, monitorHDDElement, monitorGPUSettings, monitorVRAMSettings, monitorTemperatureSettings, monitorVRAMSpeedElement, monitorSharedSpeedElement, currentRate) {
+    constructor(rootElement, monitorCPUElement, monitorRAMElement, monitorHDDElement, monitorGPUSettings, monitorVRAMSettings, monitorTemperatureSettings, currentRate) {
         super('crystools-monitors-root', rootElement);
         Object.defineProperty(this, "rootElement", {
             enumerable: true,
@@ -45,18 +45,6 @@ export class MonitorUI extends ProgressBarUIBase {
             writable: true,
             value: monitorTemperatureSettings
         });
-        Object.defineProperty(this, "monitorVRAMSpeedElement", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: monitorVRAMSpeedElement
-        });
-        Object.defineProperty(this, "monitorSharedSpeedElement", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: monitorSharedSpeedElement
-        });
         Object.defineProperty(this, "currentRate", {
             enumerable: true,
             configurable: true,
@@ -81,12 +69,6 @@ export class MonitorUI extends ProgressBarUIBase {
             writable: true,
             value: {}
         });
-        Object.defineProperty(this, "maxTransferSpeed", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: { vram: 1000, shared: 1000 }
-        });
         Object.defineProperty(this, "createDOM", {
             enumerable: true,
             configurable: true,
@@ -98,8 +80,6 @@ export class MonitorUI extends ProgressBarUIBase {
                 this.rootElement.appendChild(this.createMonitor(this.monitorCPUElement));
                 this.rootElement.appendChild(this.createMonitor(this.monitorRAMElement));
                 this.rootElement.appendChild(this.createMonitor(this.monitorHDDElement));
-                this.rootElement.appendChild(this.createMonitor(this.monitorVRAMSpeedElement));
-                this.rootElement.appendChild(this.createMonitor(this.monitorSharedSpeedElement));
                 this.updateAllAnimationDuration(this.currentRate);
             }
         });
@@ -129,12 +109,6 @@ export class MonitorUI extends ProgressBarUIBase {
                         this.monitorTemperatureSettings[index].htmlMonitorRef.style.order = '' + this.lastMonitor++;
                     });
                     this.monitorHDDElement.htmlMonitorRef.style.order = '' + this.lastMonitor++;
-                    if (this.monitorVRAMSpeedElement?.htmlMonitorRef) {
-                        this.monitorVRAMSpeedElement.htmlMonitorRef.style.order = '' + this.lastMonitor++;
-                    }
-                    if (this.monitorSharedSpeedElement?.htmlMonitorRef) {
-                        this.monitorSharedSpeedElement.htmlMonitorRef.style.order = '' + this.lastMonitor++;
-                    }
                 }
                 catch (error) {
                     console.error('orderMonitors', error);
@@ -149,15 +123,6 @@ export class MonitorUI extends ProgressBarUIBase {
                 this.updateMonitor(this.monitorCPUElement, data.cpu_utilization);
                 this.updateMonitor(this.monitorRAMElement, data.ram_used_percent, data.ram_used, data.ram_total);
                 this.updateMonitor(this.monitorHDDElement, data.hdd_used_percent, data.hdd_used, data.hdd_total);
-
-                // Update transfer speed monitors
-                if (data.vram_transfer_speed !== undefined && data.vram_transfer_speed >= 0) {
-                    this.updateTransferSpeedMonitor(this.monitorVRAMSpeedElement, data.vram_transfer_speed, 'vram');
-                }
-                if (data.shared_gpu_transfer_speed !== undefined && data.shared_gpu_transfer_speed >= 0) {
-                    this.updateTransferSpeedMonitor(this.monitorSharedSpeedElement, data.shared_gpu_transfer_speed, 'shared');
-                }
-
                 if (data.gpus === undefined || data.gpus.length === 0) {
                     console.warn('UpdateAllMonitors: no GPU data');
                     return;
@@ -201,39 +166,6 @@ export class MonitorUI extends ProgressBarUIBase {
                 });
             }
         });
-        Object.defineProperty(this, "updateTransferSpeedMonitor", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: (monitorSettings, speed, speedType) => {
-                if (!(monitorSettings?.htmlMonitorSliderRef && monitorSettings?.htmlMonitorLabelRef)) {
-                    return;
-                }
-                if (speed < 0) {
-                    return;
-                }
-
-                // Track max speed dynamically for better graph scaling
-                const key = speedType || 'vram';
-                if (speed > this.maxTransferSpeed[key]) {
-                    this.maxTransferSpeed[key] = speed;
-                }
-
-                // Use dynamic max with 20% headroom for better visualization
-                const maxSpeed = this.maxTransferSpeed[key] * 1.2;
-                const percent = Math.min((speed / maxSpeed) * 100, 100);
-
-                // Build detailed title with max speed info
-                const title = `${monitorSettings.label}: ${formatSpeed(speed)} (Max: ${formatSpeed(this.maxTransferSpeed[key])})`;
-                if (monitorSettings.htmlMonitorRef) {
-                    monitorSettings.htmlMonitorRef.title = title;
-                }
-
-                // Display formatted speed
-                monitorSettings.htmlMonitorLabelRef.innerHTML = formatSpeed(speed);
-                monitorSettings.htmlMonitorSliderRef.style.width = `${Math.floor(percent)}%`;
-            }
-        });
         Object.defineProperty(this, "updateMonitor", {
             enumerable: true,
             configurable: true,
@@ -275,8 +207,6 @@ export class MonitorUI extends ProgressBarUIBase {
                 this.updatedAnimationDuration(this.monitorCPUElement, value);
                 this.updatedAnimationDuration(this.monitorRAMElement, value);
                 this.updatedAnimationDuration(this.monitorHDDElement, value);
-                this.updatedAnimationDuration(this.monitorVRAMSpeedElement, value);
-                this.updatedAnimationDuration(this.monitorSharedSpeedElement, value);
                 this.monitorGPUSettings.forEach((monitorSettings) => {
                     monitorSettings && this.updatedAnimationDuration(monitorSettings, value);
                 });
@@ -365,6 +295,26 @@ export class MonitorUI extends ProgressBarUIBase {
             writable: true,
             value: () => {
                 this.maxVRAMUsed = {};
+            }
+        });
+        Object.defineProperty(this, "hideAllMonitors", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: () => {
+                if (this.rootElement) {
+                    this.rootElement.style.display = 'none';
+                }
+            }
+        });
+        Object.defineProperty(this, "showAllMonitors", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: () => {
+                if (this.rootElement) {
+                    this.rootElement.style.display = '';
+                }
             }
         });
         this.createDOM();

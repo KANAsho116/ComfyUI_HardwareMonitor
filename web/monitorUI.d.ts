@@ -23,4 +23,6 @@ export declare class MonitorUI extends ProgressBarUIBase {
     updateMonitorSize: (width: number, height: number) => void;
     showMonitor: (monitorSettings: TMonitorSettings, value: boolean) => void;
     resetMaxVRAM: () => void;
+    hideAllMonitors: () => void;
+    showAllMonitors: () => void;
 }

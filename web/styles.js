@@ -1,5 +1,6 @@
 import { utils } from './comfy/index.js';
 utils.addStylesheet('extensions/ComfyUI-Crystools/monitor.css');
+utils.addStylesheet('extensions/ComfyUI-Crystools/hardwareCharts.css');
 export var Styles;
 (function (Styles) {
     Styles["BARS"] = "BARS";
@@ -13,7 +14,7 @@ export var Colors;
     Colors["VRAM"] = "#176EC7";
     Colors["TEMP_START"] = "#00ff00";
     Colors["TEMP_END"] = "#ff0000";
-    // Transfer Speed Colors
-    Colors["VRAM_SPEED"] = "#9C27B0";      // Purple - VRAM Transfer Speed
-    Colors["SHARED_SPEED"] = "#FF5722";    // Orange - Shared GPU Memory Transfer Speed
+    Colors["VRAM_SPEED"] = "#FF6B35";
+    Colors["SHARED_GPU_SPEED"] = "#9B59B6";
+    Colors["SHARED_GPU_MEM"] = "#E91E63";
 })(Colors || (Colors = {}));

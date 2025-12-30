@@ -28,6 +28,13 @@ type TStatsData = {
   ram_total: number,
   ram_used: number,
   ram_used_percent: number,
+  // Transfer Speed (MB/s)
+  vram_transfer_speed?: number,
+  shared_gpu_transfer_speed?: number,
+  // Shared GPU Memory
+  shared_gpu_memory_used?: number,
+  shared_gpu_memory_total?: number,
+  shared_gpu_memory_percent?: number,
 }
 
 type TStatsSettings = {
@@ -38,6 +45,8 @@ type TStatsSettings = {
   switchRAM?: boolean,
   switchVRAM?: boolean,
   whichHDD?: string,
+  switchTransferSpeed?: boolean,
+  switchSharedGPUMemory?: boolean,
 }
 
 type TMonitorSettings = {

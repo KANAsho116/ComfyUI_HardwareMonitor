@@ -56,6 +56,13 @@ async def newSettings(request):
 
             cmonitor.hardwareInfo.switchTransferSpeed = switchTransferSpeed
 
+        if 'switchSharedGPUMemory' in settings is not None:
+            switchSharedGPUMemory = settings['switchSharedGPUMemory']
+            if type(switchSharedGPUMemory) is not bool:
+                raise Exception('switchSharedGPUMemory must be an boolean.')
+
+            cmonitor.hardwareInfo.switchSharedGPUMemory = switchSharedGPUMemory
+
         return web.Response(status=200)
     except Exception as e:
         logger.error(e)

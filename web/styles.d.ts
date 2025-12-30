@@ -8,5 +8,8 @@ export declare enum Colors {
     'GPU' = "#0C86F4",
     'VRAM' = "#176EC7",
     'TEMP_START' = "#00ff00",
-    'TEMP_END' = "#ff0000"
+    'TEMP_END' = "#ff0000",
+    'VRAM_SPEED' = "#FF6B35",
+    'SHARED_GPU_SPEED' = "#9B59B6",
+    'SHARED_GPU_MEM' = "#E91E63"
 }

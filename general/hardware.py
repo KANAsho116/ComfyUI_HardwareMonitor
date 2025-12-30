@@ -6,6 +6,7 @@ import psutil
 from .gpu import CGPUInfo
 from .hdd import getDrivesInfo
 from .transfer_speed import CTransferSpeedInfo
+from .shared_gpu_memory import CSharedGPUMemoryInfo
 
 from ..core import logger
 
@@ -41,7 +42,14 @@ class CHardwareInfo:
     def switchTransferSpeed(self, value):
         self.TransferSpeedInfo.switchTransferSpeed = value
 
-    def __init__(self, switchCPU=False, switchGPU=False, switchHDD=False, switchRAM=False, switchVRAM=False, switchTransferSpeed=False):
+    @property
+    def switchSharedGPUMemory(self):
+        return self.SharedGPUMemoryInfo.switchSharedGPUMemory
+    @switchSharedGPUMemory.setter
+    def switchSharedGPUMemory(self, value):
+        self.SharedGPUMemoryInfo.switchSharedGPUMemory = value
+
+    def __init__(self, switchCPU=False, switchGPU=False, switchHDD=False, switchRAM=False, switchVRAM=False, switchTransferSpeed=False, switchSharedGPUMemory=False):
         self.switchCPU = switchCPU
         self.switchHDD = switchHDD
         self.switchRAM = switchRAM
@@ -55,6 +63,10 @@ class CHardwareInfo:
         # Transfer Speed Measurement (5 second interval, 32MB test size)
         self.TransferSpeedInfo = CTransferSpeedInfo(test_size_mb=32, measurement_interval=5.0)
         self.switchTransferSpeed = switchTransferSpeed
+
+        # Shared GPU Memory Monitoring (Windows only)
+        self.SharedGPUMemoryInfo = CSharedGPUMemoryInfo()
+        self.switchSharedGPUMemory = switchSharedGPUMemory
 
     def print_sys_info(self):
         brand = None
@@ -134,6 +146,9 @@ class CHardwareInfo:
         # Get transfer speeds (cached, measured every 5 seconds)
         transferSpeeds = self.TransferSpeedInfo.get_speeds()
 
+        # Get shared GPU memory info (Windows only)
+        sharedGPUMemory = self.SharedGPUMemoryInfo.get_shared_gpu_memory_info()
+
         return {
             'cpu_utilization': cpu,
             'ram_total': ramTotal,
@@ -146,6 +161,9 @@ class CHardwareInfo:
             'gpus': getStatus['gpus'],
             'vram_transfer_speed': transferSpeeds['vram_speed'],
             'shared_gpu_transfer_speed': transferSpeeds['shared_gpu_speed'],
+            'shared_gpu_memory_used': sharedGPUMemory['shared_gpu_memory_used'],
+            'shared_gpu_memory_total': sharedGPUMemory['shared_gpu_memory_total'],
+            'shared_gpu_memory_percent': sharedGPUMemory['shared_gpu_memory_percent'],
         }
 
     def getTransferSpeedInfo(self):

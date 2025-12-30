@@ -1,8 +1,9 @@
 {
-  "name": "crystools-typescript",
+  "name": "comfyui-hardware-monitor",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Real-time hardware monitoring panel for ComfyUI",
   "scripts": {
     "start": "tsc --watch",
     "tsc": "tsc",
