@@ -81,6 +81,12 @@ export class MonitorUI extends ProgressBarUIBase {
             writable: true,
             value: {}
         });
+        Object.defineProperty(this, "maxTransferSpeed", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: { vram: 1000, shared: 1000 }
+        });
         Object.defineProperty(this, "createDOM", {
             enumerable: true,
             configurable: true,
@@ -146,10 +152,10 @@ export class MonitorUI extends ProgressBarUIBase {
 
                 // Update transfer speed monitors
                 if (data.vram_transfer_speed !== undefined && data.vram_transfer_speed >= 0) {
-                    this.updateTransferSpeedMonitor(this.monitorVRAMSpeedElement, data.vram_transfer_speed);
+                    this.updateTransferSpeedMonitor(this.monitorVRAMSpeedElement, data.vram_transfer_speed, 'vram');
                 }
                 if (data.shared_gpu_transfer_speed !== undefined && data.shared_gpu_transfer_speed >= 0) {
-                    this.updateTransferSpeedMonitor(this.monitorSharedSpeedElement, data.shared_gpu_transfer_speed);
+                    this.updateTransferSpeedMonitor(this.monitorSharedSpeedElement, data.shared_gpu_transfer_speed, 'shared');
                 }
 
                 if (data.gpus === undefined || data.gpus.length === 0) {
@@ -199,7 +205,7 @@ export class MonitorUI extends ProgressBarUIBase {
             enumerable: true,
             configurable: true,
             writable: true,
-            value: (monitorSettings, speed) => {
+            value: (monitorSettings, speed, speedType) => {
                 if (!(monitorSettings?.htmlMonitorSliderRef && monitorSettings?.htmlMonitorLabelRef)) {
                     return;
                 }
@@ -207,14 +213,23 @@ export class MonitorUI extends ProgressBarUIBase {
                     return;
                 }
 
-                const maxSpeed = monitorSettings.maxSpeed || 50000;
+                // Track max speed dynamically for better graph scaling
+                const key = speedType || 'vram';
+                if (speed > this.maxTransferSpeed[key]) {
+                    this.maxTransferSpeed[key] = speed;
+                }
+
+                // Use dynamic max with 20% headroom for better visualization
+                const maxSpeed = this.maxTransferSpeed[key] * 1.2;
                 const percent = Math.min((speed / maxSpeed) * 100, 100);
 
-                const title = `${formatSpeed(speed)}`;
+                // Build detailed title with max speed info
+                const title = `${monitorSettings.label}: ${formatSpeed(speed)} (Max: ${formatSpeed(this.maxTransferSpeed[key])})`;
                 if (monitorSettings.htmlMonitorRef) {
                     monitorSettings.htmlMonitorRef.title = title;
                 }
 
+                // Display formatted speed
                 monitorSettings.htmlMonitorLabelRef.innerHTML = formatSpeed(speed);
                 monitorSettings.htmlMonitorSliderRef.style.width = `${Math.floor(percent)}%`;
             }
