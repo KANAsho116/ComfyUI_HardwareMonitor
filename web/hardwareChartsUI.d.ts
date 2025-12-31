@@ -1,3 +1,13 @@
+export type ChartVisibilitySettings = {
+    cpu: boolean;
+    ram: boolean;
+    gpuUsage: boolean;
+    gpuTemp: boolean;
+    vram: boolean;
+    vramSpeed: boolean;
+    sharedGpuSpeed: boolean;
+    sharedGpuMem: boolean;
+};
 export declare class HardwareChartsUI {
     private chartManager;
     private panel;
@@ -6,11 +16,14 @@ export declare class HardwareChartsUI {
     private chartDefs;
     private capacitiesInitialized;
     private capacities;
+    private visibilitySettings;
     constructor();
     createDOM(): void;
     private makeDraggable;
     private initChartDefinitions;
-    initializeCharts(gpuCount: number): Promise<void>;
+    private isChartVisible;
+    initializeCharts(gpuCount: number, visibilitySettings?: ChartVisibilitySettings): Promise<void>;
+    setChartVisibility(category: keyof ChartVisibilitySettings, visible: boolean): void;
     updateAllCharts(data: TStatsData): void;
     private initializeCapacities;
     private updateSpeedScales;

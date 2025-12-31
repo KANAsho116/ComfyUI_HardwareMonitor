@@ -50,6 +50,21 @@ export class HardwareChartsUI {
                 sharedSpeedMax: 0,
             }
         });
+        Object.defineProperty(this, "visibilitySettings", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: {
+                cpu: true,
+                ram: true,
+                gpuUsage: true,
+                gpuTemp: true,
+                vram: true,
+                vramSpeed: true,
+                sharedGpuSpeed: true,
+                sharedGpuMem: true,
+            }
+        });
         this.chartManager = new ChartManager();
     }
     createDOM() {
@@ -150,6 +165,7 @@ export class HardwareChartsUI {
             yMax: 100,
             getValue: (data) => data.cpu_utilization,
             formatValue: (v) => `${v.toFixed(0)}%`,
+            visibilityKey: 'cpu',
         });
         this.chartDefs.push({
             id: 'ram',
@@ -161,6 +177,7 @@ export class HardwareChartsUI {
                 return used > 0 ? used / (1024 * 1024 * 1024) : -1;
             },
             formatValue: (v) => `${v.toFixed(1)} GB`,
+            visibilityKey: 'ram',
         });
         for (let i = 0; i < gpuCount; i++) {
             const suffix = gpuCount > 1 ? ` ${i}` : '';
@@ -173,6 +190,7 @@ export class HardwareChartsUI {
                 yMax: 100,
                 getValue: (data) => data.gpus?.[i]?.gpu_utilization ?? -1,
                 formatValue: (v) => `${v.toFixed(0)}%`,
+                visibilityKey: 'gpuUsage',
             });
             this.chartDefs.push({
                 id: `temp_${i}`,
@@ -183,6 +201,7 @@ export class HardwareChartsUI {
                 yMax: 100,
                 getValue: (data) => data.gpus?.[i]?.gpu_temperature ?? -1,
                 formatValue: (v) => `${v.toFixed(0)}°C`,
+                visibilityKey: 'gpuTemp',
             });
             this.chartDefs.push({
                 id: `vram_${i}`,
@@ -193,6 +212,7 @@ export class HardwareChartsUI {
                 yMax: 100,
                 getValue: (data) => data.gpus?.[i]?.vram_used_percent ?? -1,
                 formatValue: (v) => `${v.toFixed(0)}%`,
+                visibilityKey: 'vram',
             });
             this.chartDefs.push({
                 id: `vram_gb_${i}`,
@@ -204,6 +224,7 @@ export class HardwareChartsUI {
                     return used > 0 ? used / (1024 * 1024 * 1024) : -1;
                 },
                 formatValue: (v) => `${v.toFixed(1)} GB`,
+                visibilityKey: 'vram',
             });
         }
         this.chartDefs.push({
@@ -216,6 +237,7 @@ export class HardwareChartsUI {
                 return speed > 0 ? speed / 1024 : -1;
             },
             formatValue: (v) => `${v.toFixed(1)} GB/s`,
+            visibilityKey: 'vramSpeed',
         });
         this.chartDefs.push({
             id: 'shared_speed',
@@ -227,6 +249,7 @@ export class HardwareChartsUI {
                 return speed > 0 ? speed / 1024 : -1;
             },
             formatValue: (v) => `${v.toFixed(1)} GB/s`,
+            visibilityKey: 'sharedGpuSpeed',
         });
         this.chartDefs.push({
             id: 'shared_mem',
@@ -237,6 +260,7 @@ export class HardwareChartsUI {
             yMax: 100,
             getValue: (data) => data.shared_gpu_memory_percent ?? -1,
             formatValue: (v) => `${v.toFixed(1)}%`,
+            visibilityKey: 'sharedGpuMem',
         });
         this.chartDefs.push({
             id: 'shared_mem_gb',
@@ -248,11 +272,20 @@ export class HardwareChartsUI {
                 return used > 0 ? used / (1024 * 1024 * 1024) : -1;
             },
             formatValue: (v) => `${v.toFixed(2)} GB`,
+            visibilityKey: 'sharedGpuMem',
         });
     }
-    async initializeCharts(gpuCount) {
+    isChartVisible(visibilityKey) {
+        if (!visibilityKey)
+            return true;
+        return this.visibilitySettings[visibilityKey] ?? true;
+    }
+    async initializeCharts(gpuCount, visibilitySettings) {
         if (this.initialized)
             return;
+        if (visibilitySettings) {
+            this.visibilitySettings = { ...visibilitySettings };
+        }
         this.initChartDefinitions(gpuCount);
         this.createDOM();
         const container = document.getElementById('crystools-charts-list');
@@ -260,12 +293,15 @@ export class HardwareChartsUI {
             return;
         container.innerHTML = '';
         for (const def of this.chartDefs) {
+            const isVisible = this.isChartVisible(def.visibilityKey);
             const item = document.createElement('div');
             item.className = 'crystools-chart-item';
+            item.id = `crystools-chart-item-${def.id}`;
             item.style.cssText = `
         background: rgba(40, 40, 40, 0.8);
         border-radius: 6px;
         padding: 6px 8px;
+        display: ${isVisible ? 'block' : 'none'};
       `;
             const header = document.createElement('div');
             header.style.cssText = `
@@ -313,6 +349,17 @@ export class HardwareChartsUI {
             }
         }
         this.initialized = true;
+    }
+    setChartVisibility(category, visible) {
+        this.visibilitySettings[category] = visible;
+        for (const def of this.chartDefs) {
+            if (def.visibilityKey === category) {
+                const chartItem = document.getElementById(`crystools-chart-item-${def.id}`);
+                if (chartItem) {
+                    chartItem.style.display = visible ? 'block' : 'none';
+                }
+            }
+        }
     }
     updateAllCharts(data) {
         if (!this.enabled || !this.initialized)

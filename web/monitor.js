@@ -59,6 +59,54 @@ class HardwareMonitor {
             writable: true,
             value: void 0
         });
+        Object.defineProperty(this, "settingsShowCPU", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsShowRAM", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsShowGPUUsage", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsShowGPUTemp", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsShowVRAM", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsShowVRAMSpeed", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsShowSharedGPUSpeed", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "settingsShowSharedGPUMem", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
         Object.defineProperty(this, "createSettingsRate", {
             enumerable: true,
             configurable: true,
@@ -171,6 +219,166 @@ class HardwareMonitor {
                 };
             }
         });
+        Object.defineProperty(this, "createChartVisibilitySettings", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: () => {
+                this.settingsShowCPU = {
+                    id: 'HardwareMonitor.ShowCPU',
+                    name: 'Show CPU Chart',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'CPU',
+                    symbol: '',
+                    tooltip: 'Show/hide CPU usage chart',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.CPU,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('cpu', value);
+                    },
+                };
+                this.settingsShowRAM = {
+                    id: 'HardwareMonitor.ShowRAM',
+                    name: 'Show RAM Chart',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'RAM',
+                    symbol: '',
+                    tooltip: 'Show/hide RAM usage chart',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.RAM,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('ram', value);
+                    },
+                };
+                this.settingsShowGPUUsage = {
+                    id: 'HardwareMonitor.ShowGPUUsage',
+                    name: 'Show GPU Usage Chart',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'GPU Usage',
+                    symbol: '',
+                    tooltip: 'Show/hide GPU usage chart',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.GPU,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('gpuUsage', value);
+                    },
+                };
+                this.settingsShowGPUTemp = {
+                    id: 'HardwareMonitor.ShowGPUTemp',
+                    name: 'Show GPU Temperature Chart',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'GPU Temp',
+                    symbol: '',
+                    tooltip: 'Show/hide GPU temperature chart',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.TEMP_END,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('gpuTemp', value);
+                    },
+                };
+                this.settingsShowVRAM = {
+                    id: 'HardwareMonitor.ShowVRAM',
+                    name: 'Show VRAM Charts',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'VRAM',
+                    symbol: '',
+                    tooltip: 'Show/hide VRAM usage and used charts',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.VRAM,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('vram', value);
+                    },
+                };
+                this.settingsShowVRAMSpeed = {
+                    id: 'HardwareMonitor.ShowVRAMSpeed',
+                    name: 'Show VRAM Speed Chart',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'VRAM Speed',
+                    symbol: '',
+                    tooltip: 'Show/hide VRAM transfer speed chart',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.VRAM_SPEED,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('vramSpeed', value);
+                    },
+                };
+                this.settingsShowSharedGPUSpeed = {
+                    id: 'HardwareMonitor.ShowSharedGPUSpeed',
+                    name: 'Show Shared GPU Speed Chart',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'Shared GPU Speed',
+                    symbol: '',
+                    tooltip: 'Show/hide shared GPU memory transfer speed chart',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.SHARED_GPU_SPEED,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('sharedGpuSpeed', value);
+                    },
+                };
+                this.settingsShowSharedGPUMem = {
+                    id: 'HardwareMonitor.ShowSharedGPUMem',
+                    name: 'Show Shared GPU Memory Charts',
+                    category: ['Hardware Monitor', 'Chart Visibility'],
+                    type: 'boolean',
+                    label: 'Shared GPU Mem',
+                    symbol: '',
+                    tooltip: 'Show/hide shared GPU memory usage charts',
+                    defaultValue: true,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.SHARED_GPU_MEM,
+                    onChange: async (value) => {
+                        this.hardwareChartsUI?.setChartVisibility('sharedGpuMem', value);
+                    },
+                };
+            }
+        });
+        Object.defineProperty(this, "getChartVisibilitySettings", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: () => {
+                return {
+                    cpu: app.extensionManager.setting.get(this.settingsShowCPU.id) ?? true,
+                    ram: app.extensionManager.setting.get(this.settingsShowRAM.id) ?? true,
+                    gpuUsage: app.extensionManager.setting.get(this.settingsShowGPUUsage.id) ?? true,
+                    gpuTemp: app.extensionManager.setting.get(this.settingsShowGPUTemp.id) ?? true,
+                    vram: app.extensionManager.setting.get(this.settingsShowVRAM.id) ?? true,
+                    vramSpeed: app.extensionManager.setting.get(this.settingsShowVRAMSpeed.id) ?? true,
+                    sharedGpuSpeed: app.extensionManager.setting.get(this.settingsShowSharedGPUSpeed.id) ?? true,
+                    sharedGpuMem: app.extensionManager.setting.get(this.settingsShowSharedGPUMem.id) ?? true,
+                };
+            }
+        });
         Object.defineProperty(this, "createSettings", {
             enumerable: true,
             configurable: true,
@@ -180,6 +388,14 @@ class HardwareMonitor {
                 app.ui.settings.addSetting(this.settingsRate);
                 app.ui.settings.addSetting(this.settingsTransferSpeed);
                 app.ui.settings.addSetting(this.settingsSharedGPUMemory);
+                app.ui.settings.addSetting(this.settingsShowCPU);
+                app.ui.settings.addSetting(this.settingsShowRAM);
+                app.ui.settings.addSetting(this.settingsShowGPUUsage);
+                app.ui.settings.addSetting(this.settingsShowGPUTemp);
+                app.ui.settings.addSetting(this.settingsShowVRAM);
+                app.ui.settings.addSetting(this.settingsShowVRAMSpeed);
+                app.ui.settings.addSetting(this.settingsShowSharedGPUSpeed);
+                app.ui.settings.addSetting(this.settingsShowSharedGPUMem);
                 void this.getGPUsFromServer().then((gpus) => {
                     this.initializeHardwareCharts(gpus.length);
                 });
@@ -192,7 +408,8 @@ class HardwareMonitor {
             value: async (gpuCount) => {
                 try {
                     console.log('[HardwareMonitor] Initializing charts with GPU count:', gpuCount);
-                    await this.hardwareChartsUI.initializeCharts(gpuCount);
+                    const visibilitySettings = this.getChartVisibilitySettings();
+                    await this.hardwareChartsUI.initializeCharts(gpuCount, visibilitySettings);
                     const chartsEnabled = app.extensionManager.setting.get(this.settingsHardwareCharts.id);
                     console.log('[HardwareMonitor] Charts enabled setting:', chartsEnabled, 'ID:', this.settingsHardwareCharts.id);
                     this.hardwareChartsUI.setEnabled(chartsEnabled === true || chartsEnabled === undefined);
@@ -276,6 +493,7 @@ class HardwareMonitor {
                 this.createSettingsHardwareCharts();
                 this.createSettingsTransferSpeed();
                 this.createSettingsSharedGPUMemory();
+                this.createChartVisibilitySettings();
                 this.createSettings();
                 console.log('[HardwareMonitor] Settings created');
                 const currentRate = parseFloat(app.extensionManager.setting.get(this.settingsRate.id));
