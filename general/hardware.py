@@ -144,3 +144,10 @@ class CHardwareInfo:
     def getTransferSpeedInfo(self):
         """Get transfer speed measurement configuration info."""
         return self.TransferSpeedInfo.get_info()
+
+    def close(self):
+        """Clean up all hardware monitoring resources."""
+        if hasattr(self, 'GPUInfo') and self.GPUInfo is not None:
+            self.GPUInfo.close()
+        if hasattr(self, 'SharedGPUMemoryInfo') and self.SharedGPUMemoryInfo is not None:
+            self.SharedGPUMemoryInfo.close()

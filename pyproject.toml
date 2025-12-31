@@ -16,3 +16,24 @@ Repository = "https://github.com/KANAsho116/ComfyUI_HardwareMonitor"
 [tool.comfy]
 PublisherId = "KANAsho116"
 DisplayName = "Hardware Monitor"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = ["ignore::DeprecationWarning"]
+norecursedirs = ["node_modules", ".git", "__pycache__", "core", "general", "server", "web"]
+collect_ignore = ["__init__.py", "core", "general", "server"]
+
+[tool.coverage.run]
+source = ["general", "core", "server"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]

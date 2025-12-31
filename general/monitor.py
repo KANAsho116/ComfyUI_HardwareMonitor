@@ -62,6 +62,10 @@ class CMonitor:
         logger.debug('Stopping monitor...')
         self.threadController.set()
 
+        # Clean up hardware resources
+        if self.hardwareInfo is not None:
+            self.hardwareInfo.close()
+
 
 cmonitor = CMonitor(1, True, True, True, True, False)
 
