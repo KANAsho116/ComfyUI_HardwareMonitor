@@ -14,7 +14,6 @@ class HardwareMonitor {
   private hardwareChartsUI: HardwareChartsUI;
   private settingsHardwareCharts: TMonitorSettings;
   private settingsTransferSpeed: TMonitorSettings;
-  private settingsSharedGPUMemory: TMonitorSettings;
 
   // Chart visibility settings
   private settingsShowCPU: TMonitorSettings;
@@ -29,8 +28,7 @@ class HardwareMonitor {
   createSettingsRate = (): void => {
     this.settingsRate = {
       id: 'HardwareMonitor.RefreshRate',
-      name: 'Refresh Rate (seconds)',
-      category: ['Hardware Monitor', 'Settings'],
+      name: 'HardwareMonitor: Refresh Rate (seconds)',
       tooltip: 'Update interval in seconds. Set to 0 to disable.',
       type: 'slider',
       attrs: {
@@ -64,8 +62,7 @@ class HardwareMonitor {
   createSettingsHardwareCharts = (): void => {
     this.settingsHardwareCharts = {
       id: 'HardwareMonitor.ShowChartsPanel',
-      name: 'Show Charts Panel',
-      category: ['Hardware Monitor', 'Settings'],
+      name: 'HardwareMonitor: Show Charts Panel',
       type: 'boolean',
       label: 'Charts',
       symbol: '',
@@ -85,8 +82,7 @@ class HardwareMonitor {
   createSettingsTransferSpeed = (): void => {
     this.settingsTransferSpeed = {
       id: 'HardwareMonitor.TransferSpeed',
-      name: 'Transfer Speed Monitoring',
-      category: ['Hardware Monitor', 'Settings'],
+      name: 'HardwareMonitor: Transfer Speed Monitoring',
       type: 'boolean',
       label: 'Speed',
       symbol: 'GB/s',
@@ -103,33 +99,11 @@ class HardwareMonitor {
     };
   };
 
-  createSettingsSharedGPUMemory = (): void => {
-    this.settingsSharedGPUMemory = {
-      id: 'HardwareMonitor.SharedGPUMemory',
-      name: 'Shared GPU Memory Monitoring',
-      category: ['Hardware Monitor', 'Settings'],
-      type: 'boolean',
-      label: 'Shared',
-      symbol: '%',
-      tooltip: 'Monitor Shared GPU Memory usage (Windows only)',
-      defaultValue: true,
-      htmlMonitorRef: undefined,
-      htmlMonitorSliderRef: undefined,
-      htmlMonitorLabelRef: undefined,
-      cssColor: Colors.SHARED_GPU_MEM,
-      // @ts-ignore
-      onChange: async(value: boolean): Promise<void> => {
-        await this.updateServer({switchSharedGPUMemory: value});
-      },
-    };
-  };
-
   createChartVisibilitySettings = (): void => {
     // CPU Chart visibility
     this.settingsShowCPU = {
       id: 'HardwareMonitor.ShowCPU',
-      name: 'Show CPU Chart',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart CPU',
       type: 'boolean',
       label: 'CPU',
       symbol: '',
@@ -148,8 +122,7 @@ class HardwareMonitor {
     // RAM Chart visibility
     this.settingsShowRAM = {
       id: 'HardwareMonitor.ShowRAM',
-      name: 'Show RAM Chart',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart RAM',
       type: 'boolean',
       label: 'RAM',
       symbol: '',
@@ -168,8 +141,7 @@ class HardwareMonitor {
     // GPU Usage Chart visibility
     this.settingsShowGPUUsage = {
       id: 'HardwareMonitor.ShowGPUUsage',
-      name: 'Show GPU Usage Chart',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart GPU Usage',
       type: 'boolean',
       label: 'GPU Usage',
       symbol: '',
@@ -188,8 +160,7 @@ class HardwareMonitor {
     // GPU Temperature Chart visibility
     this.settingsShowGPUTemp = {
       id: 'HardwareMonitor.ShowGPUTemp',
-      name: 'Show GPU Temperature Chart',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart GPU Temperature',
       type: 'boolean',
       label: 'GPU Temp',
       symbol: '',
@@ -208,8 +179,7 @@ class HardwareMonitor {
     // VRAM Chart visibility (includes both usage % and used GB)
     this.settingsShowVRAM = {
       id: 'HardwareMonitor.ShowVRAM',
-      name: 'Show VRAM Charts',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart VRAM',
       type: 'boolean',
       label: 'VRAM',
       symbol: '',
@@ -228,8 +198,7 @@ class HardwareMonitor {
     // VRAM Speed Chart visibility
     this.settingsShowVRAMSpeed = {
       id: 'HardwareMonitor.ShowVRAMSpeed',
-      name: 'Show VRAM Speed Chart',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart VRAM Speed',
       type: 'boolean',
       label: 'VRAM Speed',
       symbol: '',
@@ -248,8 +217,7 @@ class HardwareMonitor {
     // Shared GPU Speed Chart visibility
     this.settingsShowSharedGPUSpeed = {
       id: 'HardwareMonitor.ShowSharedGPUSpeed',
-      name: 'Show Shared GPU Speed Chart',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart Shared GPU Speed',
       type: 'boolean',
       label: 'Shared GPU Speed',
       symbol: '',
@@ -268,8 +236,7 @@ class HardwareMonitor {
     // Shared GPU Memory Chart visibility
     this.settingsShowSharedGPUMem = {
       id: 'HardwareMonitor.ShowSharedGPUMem',
-      name: 'Show Shared GPU Memory Charts',
-      category: ['Hardware Monitor', 'Chart Visibility'],
+      name: 'HardwareMonitor: Chart Shared GPU Memory',
       type: 'boolean',
       label: 'Shared GPU Mem',
       symbol: '',
@@ -303,7 +270,6 @@ class HardwareMonitor {
     app.ui.settings.addSetting(this.settingsHardwareCharts);
     app.ui.settings.addSetting(this.settingsRate);
     app.ui.settings.addSetting(this.settingsTransferSpeed);
-    app.ui.settings.addSetting(this.settingsSharedGPUMemory);
 
     // Chart visibility settings
     app.ui.settings.addSetting(this.settingsShowCPU);
@@ -392,7 +358,6 @@ class HardwareMonitor {
     this.createSettingsRate();
     this.createSettingsHardwareCharts();
     this.createSettingsTransferSpeed();
-    this.createSettingsSharedGPUMemory();
     this.createChartVisibilitySettings();
     this.createSettings();
     console.log('[HardwareMonitor] Settings created');
