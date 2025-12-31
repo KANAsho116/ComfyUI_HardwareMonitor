@@ -9,10 +9,10 @@ async def newSettings(request):
         settings = await request.json()
         # print(settings)
 
-        if 'rate' in settings is not None:
+        if 'rate' in settings and settings['rate'] is not None:
             rate = settings['rate']
-            if type(rate) is not int and type(rate) is not float:
-                raise Exception('Rate must be an number.')
+            if not isinstance(rate, (int, float)):
+                raise Exception('Rate must be a number.')
 
             if cmonitor.rate == 0 and rate > 0:
                 cmonitor.rate = rate
@@ -21,31 +21,31 @@ async def newSettings(request):
                 cmonitor.rate = rate
 
 
-        if 'switchCPU' in settings is not None:
+        if 'switchCPU' in settings and settings['switchCPU'] is not None:
             switchCPU = settings['switchCPU']
-            if type(switchCPU) is not bool:
-                raise Exception('switchCPU must be an boolean.')
+            if not isinstance(switchCPU, bool):
+                raise Exception('switchCPU must be a boolean.')
 
             cmonitor.hardwareInfo.switchCPU = switchCPU
 
-        if 'switchRAM' in settings is not None:
+        if 'switchRAM' in settings and settings['switchRAM'] is not None:
             switchRAM = settings['switchRAM']
-            if type(switchRAM) is not bool:
-                raise Exception('switchRAM must be an boolean.')
+            if not isinstance(switchRAM, bool):
+                raise Exception('switchRAM must be a boolean.')
 
             cmonitor.hardwareInfo.switchRAM = switchRAM
 
-        if 'switchTransferSpeed' in settings is not None:
+        if 'switchTransferSpeed' in settings and settings['switchTransferSpeed'] is not None:
             switchTransferSpeed = settings['switchTransferSpeed']
-            if type(switchTransferSpeed) is not bool:
-                raise Exception('switchTransferSpeed must be an boolean.')
+            if not isinstance(switchTransferSpeed, bool):
+                raise Exception('switchTransferSpeed must be a boolean.')
 
             cmonitor.hardwareInfo.switchTransferSpeed = switchTransferSpeed
 
-        if 'switchSharedGPUMemory' in settings is not None:
+        if 'switchSharedGPUMemory' in settings and settings['switchSharedGPUMemory'] is not None:
             switchSharedGPUMemory = settings['switchSharedGPUMemory']
-            if type(switchSharedGPUMemory) is not bool:
-                raise Exception('switchSharedGPUMemory must be an boolean.')
+            if not isinstance(switchSharedGPUMemory, bool):
+                raise Exception('switchSharedGPUMemory must be a boolean.')
 
             cmonitor.hardwareInfo.switchSharedGPUMemory = switchSharedGPUMemory
 
@@ -60,10 +60,10 @@ async def monitorSwitch(request):
     try:
         switch = await request.json()
 
-        if 'monitor' in switch is not None:
+        if 'monitor' in switch and switch['monitor'] is not None:
             monitor = switch['monitor']
-            if type(monitor) is not bool:
-                raise Exception('monitor must be an boolean.')
+            if not isinstance(monitor, bool):
+                raise Exception('monitor must be a boolean.')
 
             if monitor:
                 cmonitor.startMonitor()
@@ -101,21 +101,21 @@ async def getGPUs(request):
   try:
     index = request.match_info["index"]
     settings = await request.json()
-    if 'utilization' in settings is not None:
-      if type(settings['utilization']) is not bool:
-        raise Exception('utilization must be an boolean.')
+    if 'utilization' in settings and settings['utilization'] is not None:
+      if not isinstance(settings['utilization'], bool):
+        raise Exception('utilization must be a boolean.')
 
       cmonitor.hardwareInfo.GPUInfo.gpusUtilization[int(index)] = settings['utilization']
 
-    if 'vram' in settings is not None:
-      if type(settings['vram']) is not bool:
-        raise Exception('vram must be an boolean.')
+    if 'vram' in settings and settings['vram'] is not None:
+      if not isinstance(settings['vram'], bool):
+        raise Exception('vram must be a boolean.')
 
       cmonitor.hardwareInfo.GPUInfo.gpusVRAM[int(index)] = settings['vram']
 
-    if 'temperature' in settings is not None:
-      if type(settings['temperature']) is not bool:
-        raise Exception('temperature must be an boolean.')
+    if 'temperature' in settings and settings['temperature'] is not None:
+      if not isinstance(settings['temperature'], bool):
+        raise Exception('temperature must be a boolean.')
 
       cmonitor.hardwareInfo.GPUInfo.gpusTemperature[int(index)] = settings['temperature']
 

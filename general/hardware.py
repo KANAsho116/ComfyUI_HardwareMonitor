@@ -93,7 +93,7 @@ class CHardwareInfo:
 
         try:
             arch_string_raw = DataSource.arch_string_raw
-        except:
+        except (AttributeError, Exception):
             pass
 
         specName = 'CPU: ' + brand

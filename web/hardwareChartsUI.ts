@@ -64,6 +64,17 @@ export class HardwareChartsUI {
     sharedGpuMem: true,
   };
 
+  // DOM element cache for performance optimization
+  private domCache: {
+    chartsContainer: HTMLElement | null;
+    valueElements: Map<string, HTMLElement>;
+    chartItems: Map<string, HTMLElement>;
+  } = {
+    chartsContainer: null,
+    valueElements: new Map(),
+    chartItems: new Map(),
+  };
+
   constructor() {
     this.chartManager = new ChartManager();
   }
@@ -350,6 +361,9 @@ export class HardwareChartsUI {
     const container = document.getElementById('crystools-charts-list');
     if (!container) return;
 
+    // Cache the container reference
+    this.domCache.chartsContainer = container;
+
     // Clear existing content
     container.innerHTML = '';
 
@@ -410,6 +424,10 @@ export class HardwareChartsUI {
       item.appendChild(chartContainer);
 
       container.appendChild(item);
+
+      // Cache DOM references for performance
+      this.domCache.valueElements.set(def.id, value);
+      this.domCache.chartItems.set(def.id, item);
     }
 
     // Wait for DOM to render
@@ -433,10 +451,10 @@ export class HardwareChartsUI {
   setChartVisibility(category: keyof ChartVisibilitySettings, visible: boolean): void {
     this.visibilitySettings[category] = visible;
 
-    // Update DOM visibility for all charts with this visibility key
+    // Update DOM visibility for all charts with this visibility key (use cached reference)
     for (const def of this.chartDefs) {
       if (def.visibilityKey === category) {
-        const chartItem = document.getElementById(`crystools-chart-item-${def.id}`);
+        const chartItem = this.domCache.chartItems.get(def.id);
         if (chartItem) {
           chartItem.style.display = visible ? 'block' : 'none';
         }
@@ -461,8 +479,8 @@ export class HardwareChartsUI {
       // Update chart data
       this.chartManager.updateData(def.id, value);
 
-      // Update value display
-      const valueEl = document.getElementById(`crystools-val-${def.id}`);
+      // Update value display (use cached reference)
+      const valueEl = this.domCache.valueElements.get(def.id);
       if (valueEl && value >= 0) {
         valueEl.textContent = def.formatValue(value);
       }
@@ -533,10 +551,10 @@ export class HardwareChartsUI {
   }
 
   /**
-   * Update chart title element
+   * Update chart title element (use cached reference)
    */
   private updateChartTitle(chartId: string, newTitle: string): void {
-    const chartItem = document.getElementById(`crystools-chart-${chartId}`)?.parentElement;
+    const chartItem = this.domCache.chartItems.get(chartId);
     if (chartItem) {
       const titleEl = chartItem.querySelector('span');
       if (titleEl) {
@@ -578,6 +596,10 @@ export class HardwareChartsUI {
       this.panel.remove();
       this.panel = null;
     }
+    // Clear DOM cache
+    this.domCache.chartsContainer = null;
+    this.domCache.valueElements.clear();
+    this.domCache.chartItems.clear();
     this.initialized = false;
     this.enabled = false;
   }

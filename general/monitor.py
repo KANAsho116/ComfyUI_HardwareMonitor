@@ -27,8 +27,13 @@ class CMonitor:
       server.PromptServer.instance.send_sync('crystools.monitor', data)
 
     def startMonitorLoop(self):
-      # logger.debug('Starting monitor loop...')
-      asyncio.run(self.MonitorLoop())
+      # Create a dedicated event loop for this thread
+      loop = asyncio.new_event_loop()
+      asyncio.set_event_loop(loop)
+      try:
+          loop.run_until_complete(self.MonitorLoop())
+      finally:
+          loop.close()
 
     async def MonitorLoop(self):
         while self.rate > 0 and not self.threadController.is_set():
@@ -51,10 +56,9 @@ class CMonitor:
         self.threadController.clear()
 
         if self.monitorThread is None or not self.monitorThread.is_alive():
-            lock.acquire()
-            self.monitorThread = threading.Thread(target=self.startMonitorLoop)
-            lock.release()
-            self.monitorThread.daemon = True
+            with lock:
+                self.monitorThread = threading.Thread(target=self.startMonitorLoop)
+                self.monitorThread.daemon = True
             self.monitorThread.start()
 
 
