@@ -30,7 +30,7 @@ def findJsonStrDiff(json1, json2):
 
         returnJson = json.dumps(returnJson, indent=CONFIG["indent"])
     except Exception as e:
-        logger.warn(f"{msgError}: {e}")
+        logger.warning(f"{msgError}: {e}")
 
     return returnJson
 
@@ -49,7 +49,7 @@ def findJsonsDiff(json1, json2):
         returnJson = dict(reversed(returnJson.items()))
 
     except Exception as e:
-        logger.warn(f"{msgError}: {e}")
+        logger.warning(f"{msgError}: {e}")
 
     return returnJson
 

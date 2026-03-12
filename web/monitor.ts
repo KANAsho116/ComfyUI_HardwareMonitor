@@ -4,6 +4,8 @@ import { HardwareChartsUI, ChartVisibilitySettings } from './hardwareChartsUI.js
 import { Colors } from './styles.js';
 import { ComfyKeyMenuDisplayOption, MenuDisplayOptions } from './progressBarUIBase.js';
 
+const DEBUG_LOGS = false;
+
 class HardwareMonitor {
   readonly idExtensionName = 'HardwareMonitor';
   private menuDisplayOption: MenuDisplayOptions = MenuDisplayOptions.Disabled;
@@ -24,6 +26,25 @@ class HardwareMonitor {
   private settingsShowVRAMSpeed: TMonitorSettings;
   private settingsShowSharedGPUSpeed: TMonitorSettings;
   private settingsShowSharedGPUMem: TMonitorSettings;
+
+  private logDebug(...args: unknown[]): void {
+    if (DEBUG_LOGS) {
+      console.log(...args);
+    }
+  }
+
+  private syncChartsPanelSetting(enabled: boolean): void {
+    const settingStore = (app as any)?.extensionManager?.setting;
+
+    if (settingStore?.setValue) {
+      settingStore.setValue(this.settingsHardwareCharts.id, enabled);
+      return;
+    }
+
+    if (settingStore?.set) {
+      settingStore.set(this.settingsHardwareCharts.id, enabled);
+    }
+  }
 
   createSettingsRate = (): void => {
     this.settingsRate = {
@@ -288,11 +309,11 @@ class HardwareMonitor {
 
   initializeHardwareCharts = async(gpuCount: number): Promise<void> => {
     try {
-      console.log('[HardwareMonitor] Initializing charts with GPU count:', gpuCount);
+      this.logDebug('[HardwareMonitor] Initializing charts with GPU count:', gpuCount);
       const visibilitySettings = this.getChartVisibilitySettings();
       await this.hardwareChartsUI.initializeCharts(gpuCount, visibilitySettings);
       const chartsEnabled = app.extensionManager.setting.get(this.settingsHardwareCharts.id);
-      console.log('[HardwareMonitor] Charts enabled setting:', chartsEnabled, 'ID:', this.settingsHardwareCharts.id);
+      this.logDebug('[HardwareMonitor] Charts enabled setting:', chartsEnabled, 'ID:', this.settingsHardwareCharts.id);
       this.hardwareChartsUI.setEnabled(chartsEnabled === true || chartsEnabled === undefined);
     } catch (error) {
       console.error('[HardwareMonitor] Failed to initialize hardware charts:', error);
@@ -344,9 +365,9 @@ class HardwareMonitor {
   };
 
   setup = (): void => {
-    console.log('[HardwareMonitor] Setup called');
+    this.logDebug('[HardwareMonitor] Setup called');
     if (this.monitorUI) {
-      console.log('[HardwareMonitor] Already initialized, skipping');
+      this.logDebug('[HardwareMonitor] Already initialized, skipping');
       return;
     }
 
@@ -354,13 +375,16 @@ class HardwareMonitor {
     // because createSettings triggers async GPU fetch that calls initializeHardwareCharts
     this.hardwareChartsUI = new HardwareChartsUI();
     this.hardwareChartsUI.createDOM();
+    this.hardwareChartsUI.setPanelClosedHandler(() => {
+      this.syncChartsPanelSetting(false);
+    });
 
     this.createSettingsRate();
     this.createSettingsHardwareCharts();
     this.createSettingsTransferSpeed();
     this.createChartVisibilitySettings();
     this.createSettings();
-    console.log('[HardwareMonitor] Settings created');
+    this.logDebug('[HardwareMonitor] Settings created');
 
     const currentRate = parseFloat(app.extensionManager.setting.get(this.settingsRate.id));
 
@@ -403,7 +427,7 @@ class HardwareMonitor {
   };
 
   registerListeners = (): void => {
-    console.log('[HardwareMonitor] Registering event listeners');
+    this.logDebug('[HardwareMonitor] Registering event listeners');
     api.addEventListener('crystools.monitor', (event: CustomEvent) => {
       if (event?.detail === undefined) {
         return;

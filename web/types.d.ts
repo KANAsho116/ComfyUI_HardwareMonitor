@@ -20,11 +20,11 @@ type TGpuName = {
 
 type TStatsData = {
   cpu_utilization: number,
-  device: string,
+  device_type: string,
   gpus: TGpuStatData[],
-  hdd_total: number,
-  hdd_used: number,
-  hdd_used_percent: number,
+  hdd_total?: number,
+  hdd_used?: number,
+  hdd_used_percent?: number,
   ram_total: number,
   ram_used: number,
   ram_used_percent: number,

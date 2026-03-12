@@ -11,12 +11,14 @@ export type ChartVisibilitySettings = {
 export declare class HardwareChartsUI {
     private chartManager;
     private panel;
+    private onPanelClosed;
     private enabled;
     private initialized;
     private chartDefs;
     private capacitiesInitialized;
     private capacities;
     private visibilitySettings;
+    private domCache;
     constructor();
     createDOM(): void;
     private makeDraggable;
@@ -28,6 +30,7 @@ export declare class HardwareChartsUI {
     private initializeCapacities;
     private updateSpeedScales;
     private updateChartTitle;
+    setPanelClosedHandler(handler: (() => void) | null): void;
     setEnabled(enabled: boolean): void;
     isEnabled(): boolean;
     isInitialized(): boolean;

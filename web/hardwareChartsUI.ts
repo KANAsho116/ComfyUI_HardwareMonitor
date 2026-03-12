@@ -42,6 +42,7 @@ interface HardwareCapacities {
 export class HardwareChartsUI {
   private chartManager: ChartManager;
   private panel: HTMLDivElement | null = null;
+  private onPanelClosed: (() => void) | null = null;
   private enabled: boolean = false;
   private initialized: boolean = false;
   private chartDefs: ChartDefinition[] = [];
@@ -129,7 +130,10 @@ export class HardwareChartsUI {
       padding: 0 4px;
       line-height: 1;
     `;
-    closeBtn.onclick = () => this.setEnabled(false);
+    closeBtn.onclick = () => {
+      this.setEnabled(false);
+      this.onPanelClosed?.();
+    };
     header.appendChild(closeBtn);
 
     this.panel.appendChild(header);
@@ -561,6 +565,14 @@ export class HardwareChartsUI {
         titleEl.textContent = newTitle;
       }
     }
+  }
+
+
+  /**
+   * Register callback invoked when panel is closed via close button.
+   */
+  setPanelClosedHandler(handler: (() => void) | null): void {
+    this.onPanelClosed = handler;
   }
 
   /**
