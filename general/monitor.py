@@ -1,6 +1,5 @@
 import asyncio
 import server
-import time
 import threading
 import atexit
 from .hardware import CHardwareInfo
@@ -79,6 +78,13 @@ class CMonitor:
     def stopMonitor(self):
         logger.debug('Stopping monitor thread...')
         self.threadController.set()
+
+        if self.monitorThread is not None and self.monitorThread.is_alive():
+            self.monitorThread.join(timeout=max(self.rate * 2, 0.5))
+            if self.monitorThread.is_alive():
+                logger.warning('Monitor thread did not terminate within timeout.')
+            else:
+                self.monitorThread = None
 
     def closeHardware(self):
         logger.debug('Closing hardware monitor resources...')

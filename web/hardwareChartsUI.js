@@ -14,6 +14,12 @@ export class HardwareChartsUI {
             writable: true,
             value: null
         });
+        Object.defineProperty(this, "onPanelClosed", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: null
+        });
         Object.defineProperty(this, "enabled", {
             enumerable: true,
             configurable: true,
@@ -65,6 +71,16 @@ export class HardwareChartsUI {
                 sharedGpuMem: true,
             }
         });
+        Object.defineProperty(this, "domCache", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: {
+                chartsContainer: null,
+                valueElements: new Map(),
+                chartItems: new Map(),
+            }
+        });
         this.chartManager = new ChartManager();
     }
     createDOM() {
@@ -109,7 +125,10 @@ export class HardwareChartsUI {
       padding: 0 4px;
       line-height: 1;
     `;
-        closeBtn.onclick = () => this.setEnabled(false);
+        closeBtn.onclick = () => {
+            this.setEnabled(false);
+            this.onPanelClosed?.();
+        };
         header.appendChild(closeBtn);
         this.panel.appendChild(header);
         const container = document.createElement('div');
@@ -291,6 +310,7 @@ export class HardwareChartsUI {
         const container = document.getElementById('crystools-charts-list');
         if (!container)
             return;
+        this.domCache.chartsContainer = container;
         container.innerHTML = '';
         for (const def of this.chartDefs) {
             const isVisible = this.isChartVisible(def.visibilityKey);
@@ -339,6 +359,8 @@ export class HardwareChartsUI {
       `;
             item.appendChild(chartContainer);
             container.appendChild(item);
+            this.domCache.valueElements.set(def.id, value);
+            this.domCache.chartItems.set(def.id, item);
         }
         await new Promise(r => requestAnimationFrame(r));
         await new Promise(r => setTimeout(r, 50));
@@ -354,7 +376,7 @@ export class HardwareChartsUI {
         this.visibilitySettings[category] = visible;
         for (const def of this.chartDefs) {
             if (def.visibilityKey === category) {
-                const chartItem = document.getElementById(`crystools-chart-item-${def.id}`);
+                const chartItem = this.domCache.chartItems.get(def.id);
                 if (chartItem) {
                     chartItem.style.display = visible ? 'block' : 'none';
                 }
@@ -370,7 +392,7 @@ export class HardwareChartsUI {
         for (const def of this.chartDefs) {
             const value = def.getValue(data);
             this.chartManager.updateData(def.id, value);
-            const valueEl = document.getElementById(`crystools-val-${def.id}`);
+            const valueEl = this.domCache.valueElements.get(def.id);
             if (valueEl && value >= 0) {
                 valueEl.textContent = def.formatValue(value);
             }
@@ -421,13 +443,16 @@ export class HardwareChartsUI {
         }
     }
     updateChartTitle(chartId, newTitle) {
-        const chartItem = document.getElementById(`crystools-chart-${chartId}`)?.parentElement;
+        const chartItem = this.domCache.chartItems.get(chartId);
         if (chartItem) {
             const titleEl = chartItem.querySelector('span');
             if (titleEl) {
                 titleEl.textContent = newTitle;
             }
         }
+    }
+    setPanelClosedHandler(handler) {
+        this.onPanelClosed = handler;
     }
     setEnabled(enabled) {
         this.enabled = enabled;
@@ -447,6 +472,9 @@ export class HardwareChartsUI {
             this.panel.remove();
             this.panel = null;
         }
+        this.domCache.chartsContainer = null;
+        this.domCache.valueElements.clear();
+        this.domCache.chartItems.clear();
         this.initialized = false;
         this.enabled = false;
     }

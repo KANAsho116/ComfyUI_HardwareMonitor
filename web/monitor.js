@@ -3,6 +3,7 @@ import { MonitorUI } from './monitorUI.js';
 import { HardwareChartsUI } from './hardwareChartsUI.js';
 import { Colors } from './styles.js';
 import { ComfyKeyMenuDisplayOption, MenuDisplayOptions } from './progressBarUIBase.js';
+const DEBUG_LOGS = false;
 class HardwareMonitor {
     constructor() {
         Object.defineProperty(this, "idExtensionName", {
@@ -365,11 +366,11 @@ class HardwareMonitor {
             writable: true,
             value: async (gpuCount) => {
                 try {
-                    console.log('[HardwareMonitor] Initializing charts with GPU count:', gpuCount);
+                    this.logDebug('[HardwareMonitor] Initializing charts with GPU count:', gpuCount);
                     const visibilitySettings = this.getChartVisibilitySettings();
                     await this.hardwareChartsUI.initializeCharts(gpuCount, visibilitySettings);
                     const chartsEnabled = app.extensionManager.setting.get(this.settingsHardwareCharts.id);
-                    console.log('[HardwareMonitor] Charts enabled setting:', chartsEnabled, 'ID:', this.settingsHardwareCharts.id);
+                    this.logDebug('[HardwareMonitor] Charts enabled setting:', chartsEnabled, 'ID:', this.settingsHardwareCharts.id);
                     this.hardwareChartsUI.setEnabled(chartsEnabled === true || chartsEnabled === undefined);
                 }
                 catch (error) {
@@ -440,19 +441,22 @@ class HardwareMonitor {
             configurable: true,
             writable: true,
             value: () => {
-                console.log('[HardwareMonitor] Setup called');
+                this.logDebug('[HardwareMonitor] Setup called');
                 if (this.monitorUI) {
-                    console.log('[HardwareMonitor] Already initialized, skipping');
+                    this.logDebug('[HardwareMonitor] Already initialized, skipping');
                     return;
                 }
                 this.hardwareChartsUI = new HardwareChartsUI();
                 this.hardwareChartsUI.createDOM();
+                this.hardwareChartsUI.setPanelClosedHandler(() => {
+                    this.syncChartsPanelSetting(false);
+                });
                 this.createSettingsRate();
                 this.createSettingsHardwareCharts();
                 this.createSettingsTransferSpeed();
                 this.createChartVisibilitySettings();
                 this.createSettings();
-                console.log('[HardwareMonitor] Settings created');
+                this.logDebug('[HardwareMonitor] Settings created');
                 const currentRate = parseFloat(app.extensionManager.setting.get(this.settingsRate.id));
                 this.menuDisplayOption = app.extensionManager.setting.get(ComfyKeyMenuDisplayOption);
                 this.crystoolsButtonGroup = new ComfyButtonGroup();
@@ -482,7 +486,7 @@ class HardwareMonitor {
             configurable: true,
             writable: true,
             value: () => {
-                console.log('[HardwareMonitor] Registering event listeners');
+                this.logDebug('[HardwareMonitor] Registering event listeners');
                 api.addEventListener('crystools.monitor', (event) => {
                     if (event?.detail === undefined) {
                         return;
@@ -493,6 +497,21 @@ class HardwareMonitor {
                 }, false);
             }
         });
+    }
+    logDebug(...args) {
+        if (DEBUG_LOGS) {
+            console.log(...args);
+        }
+    }
+    syncChartsPanelSetting(enabled) {
+        const settingStore = app?.extensionManager?.setting;
+        if (settingStore?.setValue) {
+            settingStore.setValue(this.settingsHardwareCharts.id, enabled);
+            return;
+        }
+        if (settingStore?.set) {
+            settingStore.set(this.settingsHardwareCharts.id, enabled);
+        }
     }
 }
 const hardwareMonitor = new HardwareMonitor();
