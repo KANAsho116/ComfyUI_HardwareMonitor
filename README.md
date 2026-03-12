@@ -30,23 +30,16 @@ The floating panel displays 10 charts in a 5x2 grid layout:
 
 ### Manual Installation
 
-1. Navigate to your ComfyUI custom nodes directory:
-   ```bash
-   cd ComfyUI/custom_nodes
-   ```
+Run the following commands in order (copy & paste):
 
-2. Clone this repository:
-   ```bash
-   git clone https://github.com/KANAsho116/ComfyUI_HardwareMonitor.git
-   ```
+```bash
+cd ComfyUI/custom_nodes
+git clone https://github.com/KANAsho116/ComfyUI_HardwareMonitor.git
+cd ComfyUI_HardwareMonitor
+pip install -r requirements.txt
+```
 
-3. Install dependencies:
-   ```bash
-   cd ComfyUI-HardwareMonitor
-   pip install -r requirements.txt
-   ```
-
-4. Restart ComfyUI
+Then restart ComfyUI.
 
 ## Configuration
 
@@ -57,7 +50,7 @@ Access settings via **Settings > Hardware Monitor**:
 | Show Charts Panel | Enable/disable the floating charts panel |
 | Refresh Rate | Update interval (0.25s - 2s, 0 to disable) |
 | Transfer Speed Monitoring | Enable VRAM/Shared GPU transfer speed monitoring |
-| Shared GPU Memory Monitoring | Enable Shared GPU memory monitoring (Windows only) |
+| Chart Shared GPU Memory | Show/hide shared GPU memory usage charts |
 
 ## Requirements
 
