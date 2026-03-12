@@ -47,6 +47,7 @@ class CHardwareInfo:
         self.SharedGPUMemoryInfo.switchSharedGPUMemory = value
 
     def __init__(self, switchCPU=False, switchGPU=False, switchRAM=False, switchVRAM=False, switchTransferSpeed=False, switchSharedGPUMemory=False):
+        self._closed = False
         self.switchCPU = switchCPU
         self.switchRAM = switchRAM
 
@@ -147,7 +148,25 @@ class CHardwareInfo:
 
     def close(self):
         """Clean up all hardware monitoring resources."""
+        if self._closed:
+            return
+
+        self._closed = True
+
         if hasattr(self, 'GPUInfo') and self.GPUInfo is not None:
             self.GPUInfo.close()
         if hasattr(self, 'SharedGPUMemoryInfo') and self.SharedGPUMemoryInfo is not None:
             self.SharedGPUMemoryInfo.close()
+
+    def is_closed(self) -> bool:
+        """Check whether hardware resources have been closed."""
+        gpu_closed = True
+        shared_gpu_closed = True
+
+        if hasattr(self, 'GPUInfo') and self.GPUInfo is not None:
+            gpu_closed = self.GPUInfo.is_closed()
+
+        if hasattr(self, 'SharedGPUMemoryInfo') and self.SharedGPUMemoryInfo is not None:
+            shared_gpu_closed = self.SharedGPUMemoryInfo.is_closed()
+
+        return self._closed or (gpu_closed and shared_gpu_closed)

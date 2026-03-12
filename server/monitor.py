@@ -35,11 +35,13 @@ async def newSettings(request):
             if not isinstance(rate, (int, float)):
                 raise Exception('Rate must be a number.')
 
-            if cmonitor.rate == 0 and rate > 0:
-                cmonitor.rate = rate
+            previous_rate = cmonitor.rate
+            cmonitor.rate = rate
+
+            if previous_rate == 0 and rate > 0:
                 cmonitor.startMonitor()
-            else:
-                cmonitor.rate = rate
+            elif previous_rate > 0 and rate == 0:
+                cmonitor.stopMonitor()
 
 
         if 'switchCPU' in settings and settings['switchCPU'] is not None:

@@ -375,6 +375,10 @@ class CGPUInfo:
         """Check if GPU monitoring is operational."""
         return self.anygpuLoaded and not self._closed
 
+    def is_closed(self) -> bool:
+        """Check whether GPU monitoring resources have been closed."""
+        return self._closed
+
     def reinitialize(self) -> bool:
         """
         Attempt to reinitialize GPU monitoring after a failure.
