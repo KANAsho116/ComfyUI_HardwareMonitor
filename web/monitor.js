@@ -53,6 +53,12 @@ class HardwareMonitor {
             writable: true,
             value: void 0
         });
+        Object.defineProperty(this, "settingsSharedGPUMemory", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
         Object.defineProperty(this, "settingsShowCPU", {
             enumerable: true,
             configurable: true,
@@ -182,6 +188,29 @@ class HardwareMonitor {
                     cssColor: Colors.VRAM_SPEED,
                     onChange: async (value) => {
                         await this.updateServer({ switchTransferSpeed: value });
+                    },
+                };
+            }
+        });
+        Object.defineProperty(this, "createSettingsSharedGPUMemory", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: () => {
+                this.settingsSharedGPUMemory = {
+                    id: 'HardwareMonitor.SharedGPUMemory',
+                    name: 'HardwareMonitor: Shared GPU Memory Monitoring (Windows only)',
+                    type: 'boolean',
+                    label: 'Shared GPU Mem (Win)',
+                    symbol: '',
+                    tooltip: 'Monitor shared GPU memory usage (Windows only)',
+                    defaultValue: false,
+                    htmlMonitorRef: undefined,
+                    htmlMonitorSliderRef: undefined,
+                    htmlMonitorLabelRef: undefined,
+                    cssColor: Colors.SHARED_GPU_MEM,
+                    onChange: async (value) => {
+                        await this.updateServer({ switchSharedGPUMemory: value });
                     },
                 };
             }
@@ -346,6 +375,7 @@ class HardwareMonitor {
                 app.ui.settings.addSetting(this.settingsHardwareCharts);
                 app.ui.settings.addSetting(this.settingsRate);
                 app.ui.settings.addSetting(this.settingsTransferSpeed);
+                app.ui.settings.addSetting(this.settingsSharedGPUMemory);
                 app.ui.settings.addSetting(this.settingsShowCPU);
                 app.ui.settings.addSetting(this.settingsShowRAM);
                 app.ui.settings.addSetting(this.settingsShowGPUUsage);
@@ -450,6 +480,7 @@ class HardwareMonitor {
                 this.createSettingsRate();
                 this.createSettingsHardwareCharts();
                 this.createSettingsTransferSpeed();
+                this.createSettingsSharedGPUMemory();
                 this.createChartVisibilitySettings();
                 this.createSettings();
                 console.log('[HardwareMonitor] Settings created');

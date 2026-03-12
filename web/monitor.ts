@@ -14,6 +14,7 @@ class HardwareMonitor {
   private hardwareChartsUI: HardwareChartsUI;
   private settingsHardwareCharts: TMonitorSettings;
   private settingsTransferSpeed: TMonitorSettings;
+  private settingsSharedGPUMemory: TMonitorSettings;
 
   // Chart visibility settings
   private settingsShowCPU: TMonitorSettings;
@@ -95,6 +96,26 @@ class HardwareMonitor {
       // @ts-ignore
       onChange: async(value: boolean): Promise<void> => {
         await this.updateServer({switchTransferSpeed: value});
+      },
+    };
+  };
+
+  createSettingsSharedGPUMemory = (): void => {
+    this.settingsSharedGPUMemory = {
+      id: 'HardwareMonitor.SharedGPUMemory',
+      name: 'HardwareMonitor: Shared GPU Memory Monitoring (Windows only)',
+      type: 'boolean',
+      label: 'Shared GPU Mem (Win)',
+      symbol: '',
+      tooltip: 'Monitor shared GPU memory usage (Windows only)',
+      defaultValue: false,
+      htmlMonitorRef: undefined,
+      htmlMonitorSliderRef: undefined,
+      htmlMonitorLabelRef: undefined,
+      cssColor: Colors.SHARED_GPU_MEM,
+      // @ts-ignore
+      onChange: async(value: boolean): Promise<void> => {
+        await this.updateServer({switchSharedGPUMemory: value});
       },
     };
   };
@@ -270,6 +291,7 @@ class HardwareMonitor {
     app.ui.settings.addSetting(this.settingsHardwareCharts);
     app.ui.settings.addSetting(this.settingsRate);
     app.ui.settings.addSetting(this.settingsTransferSpeed);
+    app.ui.settings.addSetting(this.settingsSharedGPUMemory);
 
     // Chart visibility settings
     app.ui.settings.addSetting(this.settingsShowCPU);
@@ -358,6 +380,7 @@ class HardwareMonitor {
     this.createSettingsRate();
     this.createSettingsHardwareCharts();
     this.createSettingsTransferSpeed();
+    this.createSettingsSharedGPUMemory();
     this.createChartVisibilitySettings();
     this.createSettings();
     console.log('[HardwareMonitor] Settings created');

@@ -57,7 +57,7 @@ Access settings via **Settings > Hardware Monitor**:
 | Show Charts Panel | Enable/disable the floating charts panel |
 | Refresh Rate | Update interval (0.25s - 2s, 0 to disable) |
 | Transfer Speed Monitoring | Enable VRAM/Shared GPU transfer speed monitoring |
-| Shared GPU Memory Monitoring | Enable Shared GPU memory monitoring (Windows only) |
+| Shared GPU Memory Monitoring | Enable Shared GPU memory monitoring (Windows only, default: disabled) |
 
 ## Requirements
 
