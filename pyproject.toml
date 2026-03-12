@@ -24,8 +24,8 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
 filterwarnings = ["ignore::DeprecationWarning"]
-norecursedirs = ["node_modules", ".git", "__pycache__", "core", "general", "server", "web"]
-collect_ignore = ["__init__.py", "core", "general", "server"]
+norecursedirs = ["node_modules", ".git", "__pycache__"]
+collect_ignore = ["__init__.py"]
 
 [tool.coverage.run]
 source = ["general", "core", "server"]
