@@ -29,6 +29,7 @@ class CSharedGPUMemoryInfo:
 
     def __init__(self):
         self.switchSharedGPUMemory = False
+        self._closed = False
         self._lock = threading.Lock()
 
         # Cached values
@@ -220,8 +221,17 @@ class CSharedGPUMemoryInfo:
 
     def close(self):
         """Clean up resources."""
+        if self._closed:
+            return
+
+        self._closed = True
+
         try:
             self._executor.shutdown(wait=False)
             logger.debug('Shared GPU memory executor shutdown.')
         except Exception as e:
             logger.debug(f'Error shutting down executor: {e}')
+
+    def is_closed(self) -> bool:
+        """Check whether this monitor has already been closed."""
+        return self._closed

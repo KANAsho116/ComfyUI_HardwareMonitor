@@ -2,6 +2,7 @@ import asyncio
 import server
 import time
 import threading
+import atexit
 from .hardware import CHardwareInfo
 
 from ..core import logger
@@ -20,6 +21,8 @@ class CMonitor:
         self.hardwareInfo = CHardwareInfo(switchCPU, switchGPU, switchRAM, switchVRAM, switchTransferSpeed)
 
         self.startMonitor()
+
+        atexit.register(self.closeHardware)
 
     async def send_message(self, data) -> None:
       # I'm not sure if it is ok, but works ¯\_(ツ)_/¯
@@ -43,14 +46,25 @@ class CMonitor:
             await asyncio.sleep(self.rate)
 
     def startMonitor(self):
-        if self.monitorThread is not None:
+        if self.rate == 0:
+            logger.debug('Monitor rate is 0, not starting monitor.')
+            return None
+
+        if self.hardwareInfo is None or self.hardwareInfo.is_closed():
+            logger.debug('Hardware monitor is closed. Reinitializing hardware resources...')
+            self.hardwareInfo = CHardwareInfo(
+                self.hardwareInfo.switchCPU if self.hardwareInfo is not None else False,
+                self.hardwareInfo.switchGPU if self.hardwareInfo is not None else False,
+                self.hardwareInfo.switchRAM if self.hardwareInfo is not None else False,
+                self.hardwareInfo.switchVRAM if self.hardwareInfo is not None else False,
+                self.hardwareInfo.switchTransferSpeed if self.hardwareInfo is not None else False,
+                self.hardwareInfo.switchSharedGPUMemory if self.hardwareInfo is not None else False,
+            )
+
+        if self.monitorThread is not None and self.monitorThread.is_alive():
             self.stopMonitor()
             logger.debug('Restarting monitor...')
         else:
-            if self.rate == 0:
-                logger.debug('Monitor rate is 0, not starting monitor.')
-                return None
-
             logger.debug('Starting monitor...')
 
         self.threadController.clear()
@@ -63,10 +77,14 @@ class CMonitor:
 
 
     def stopMonitor(self):
-        logger.debug('Stopping monitor...')
+        logger.debug('Stopping monitor thread...')
         self.threadController.set()
 
-        # Clean up hardware resources
+    def closeHardware(self):
+        logger.debug('Closing hardware monitor resources...')
+
+        self.stopMonitor()
+
         if self.hardwareInfo is not None:
             self.hardwareInfo.close()
 
